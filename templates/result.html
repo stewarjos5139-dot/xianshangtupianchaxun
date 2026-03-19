@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+
+    <title>查询结果</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f9;
+            padding: 40px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, 250px);
+            gap: 25px;
+            justify-content: center;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        img {
+            width: 200px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        button {
+            margin-top: 5px;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            background: #2193b0;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #176d85;
+        }
+
+        .confirmed {
+            color: green;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        textarea {
+            width: 90%;
+            height: 60px;
+            margin-top: 5px;
+        }
+
+        .warning {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 18px;
+            color: red;
+        }
+    </style>
+
+    <script>
+
+        function enlarge(src) {
+            let win = window.open("")
+            win.document.write("<img src='" + src + "' style='width:100%'>")
+        }
+
+    </script>
+
+</head>
+
+<body>
+
+    <h2>查询结果（身份证后六位：{{id}}）</h2>
+
+    {% if error %}
+    <div class="warning">{{error}}</div>
+    {% endif %}
+
+    {% if photos|length == 0 %}
+    <div class="warning">
+        ⚠️ 查询不到数据，请联系班长确认是否上传了照片，并确认身份证号码是否正确。
+    </div>
+    {% else %}
+    <p class="warning"> ⚠️请仔细检查照片与身份证信息是否一致!⚠️照片大小是否在30kb左右⚠️<br>如确认无误请点击“确认无误”按钮。
+        <br>有问题请在下方提交问题反馈
+    </p>
+    <div class="grid">
+        {% for p in photos %}
+        <div class="card">
+            <img src="/photos/{{p.name}}" onclick="enlarge(this.src)">
+            <div class="info">
+                <p>文件名称：{{p.name}}</p>
+                <p>文件大小：{{p.size}} KB</p>
+            </div>
+
+            {% if p.confirmed %}
+            <div class="confirmed">照片已确认无误</div>
+            {% else %}
+            <form action="/confirm" method="post">
+                <input type="hidden" name="filename" value="{{p.name}}">
+                <button type="submit">确认无误</button>
+            </form>
+
+            <form action="/feedback" method="post">
+                <input type="hidden" name="filename" value="{{p.name}}">
+                <textarea name="text" placeholder="填写问题"></textarea>
+                <br>
+                <button type="submit">反馈问题</button>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</body>
+
+</html>
